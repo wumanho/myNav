@@ -9,8 +9,8 @@ let userSiteObject = JSON.parse(userSite)
  * userSiteObject如果为空，初始化一下
  */
 let hashMap = userSiteObject || [
-    {logo: "A", logoType: "text", url: "https://www.acfun.cn",link:"acfun.cn"},
-    {logo: "bilibili.png", logoType: "image", url: "https://bilibili.com",link:"bilibili.com"}
+    {logo: "A", logoType: "text", url: "https://www.acfun.cn", link: "acfun.cn"},
+    {logo: "B", logoType: "text", url: "https://bilibili.com", link: "bilibili.com"}
 ]
 
 render()
@@ -18,29 +18,41 @@ render()
 /**
  * 渲染 hashmap 功能
  */
-function render(){
+function render() {
     //清空 ul下面的所有li，除了最后一个li，因为最后一个li是添加按钮
     $(".siteList").find("li:not(.lastLi)").remove()
-    hashMap.forEach(node=>{
+    hashMap.forEach((node,index) => {
         const $li = $(`<li>
-            <a href=${node.url}>
-                <div class="site">
-                    <div class="logo">${node.logo[0].toUpperCase()}</div>
-                    <div class="link">${node.link}</div>
-                </div>
-                </a>
+            <div class="site">
+                  <div class="close">
+                  <svg class="icon delete">
+                        <use xlink:href="#icon-delete"></use>
+                  </svg>
+                  </div>
+                  <div class="logo">${node.logo[0].toUpperCase()}</div>
+                  <div class="link">${node.link}</div>
+              </div>
     </li>`).insertBefore($lastLi)
+        $li.on("click", () => {
+            window.open(node.url)
+        })
+        $li.on("click",".close",(e)=>{
+            //点击 close 的时候，阻止冒泡
+            e.stopPropagation()
+            removeSite(index)
+            render()
+        })
     })
 }
 
 /**
  *  简化URL功能
  */
-function simplifyUrl(url){
-    return url.replace("https://","")
-        .replace("http://","")
-        .replace("www.","")
-        .replace(/\/.*/,"")
+function simplifyUrl(url) {
+    return url.replace("https://", "")
+        .replace("http://", "")
+        .replace("www.", "")
+        .replace(/\/.*/, "")
 }
 
 /**
@@ -66,8 +78,27 @@ $(".addButton")
 /*
     当用户关闭，或跳转到其他网站时，保留用户所有网址到localstorage
  */
-window.onbeforeunload = ()=>{
+window.onbeforeunload = () => {
     let str = JSON.stringify(hashMap)
     //localStorage.clear()
-    localStorage.setItem("userSite",str)
+    localStorage.setItem("userSite", str)
 }
+
+/**
+ * 删除功能
+ */
+function removeSite(index) {
+    hashMap.splice(index,1)
+}
+
+/**
+ * 监听键盘事件，快捷跳转页面
+ */
+$(document).on("keypress",(e)=>{
+    let key = e.key
+    for (let i = 0; i < hashMap.length; i++) {
+        if(hashMap[i].logo.toLowerCase() === key){
+            window.open(hashMap[i].url)
+        }
+    }
+})
