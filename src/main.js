@@ -80,6 +80,7 @@ $(".addButton")
  */
 window.onbeforeunload = () => {
     let str = JSON.stringify(hashMap)
+    console.log(str);
     //localStorage.clear()
     localStorage.setItem("userSite", str)
 }
